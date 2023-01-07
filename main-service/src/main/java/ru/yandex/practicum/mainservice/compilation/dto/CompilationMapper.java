@@ -1,7 +1,6 @@
 package ru.yandex.practicum.mainservice.compilation.dto;
 
 import ru.yandex.practicum.mainservice.compilation.model.Compilation;
-import ru.yandex.practicum.mainservice.event.dto.EventDto;
 import ru.yandex.practicum.mainservice.event.dto.EventShortDto;
 import ru.yandex.practicum.mainservice.event.model.Event;
 

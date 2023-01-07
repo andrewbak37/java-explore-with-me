@@ -4,7 +4,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import ru.yandex.practicum.mainservice.event.dto.EventDto;
 import ru.yandex.practicum.mainservice.event.dto.EventShortDto;
 
 import javax.validation.constraints.NotNull;

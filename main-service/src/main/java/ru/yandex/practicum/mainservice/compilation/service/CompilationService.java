@@ -1,6 +1,5 @@
 package ru.yandex.practicum.mainservice.compilation.service;
 
-import org.springframework.stereotype.Service;
 import ru.yandex.practicum.mainservice.compilation.dto.CompilationDto;
 import ru.yandex.practicum.mainservice.compilation.dto.NewCompilationDto;
 

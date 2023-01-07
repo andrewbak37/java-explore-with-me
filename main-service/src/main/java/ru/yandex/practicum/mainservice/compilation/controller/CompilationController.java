@@ -19,6 +19,7 @@ public class CompilationController {
                                                 @RequestParam(value = "size", defaultValue = "10") Integer size) {
         return compilationService.getCompilations(from, size);
     }
+
     @GetMapping("/{compId}")
     public CompilationDto getCompilation(@PathVariable("compId") Long compId) {
         return compilationService.getCompilation(compId);
