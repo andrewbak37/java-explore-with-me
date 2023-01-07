@@ -60,8 +60,8 @@ public class EventServiceImpl implements EventService {
             EventSort eventSort = EventSort.fromEventSort(params.getSort())
                     .orElseThrow(() -> new ValidationException("Validation failed"));
             switch (eventSort) {
-                case EVENT_DATE -> eventShortDtos.sort((o1, o2) -> o2.getEventDate().compareTo(o1.getEventDate()));
-                case VIEWS -> eventShortDtos.sort(Comparator.comparing(EventShortDto::getViews));
+                case EVENT_DATE: eventShortDtos.sort((o1, o2) -> o2.getEventDate().compareTo(o1.getEventDate())); break;
+                case VIEWS: eventShortDtos.sort(Comparator.comparing(EventShortDto::getViews)); break;
             }
         }
 
