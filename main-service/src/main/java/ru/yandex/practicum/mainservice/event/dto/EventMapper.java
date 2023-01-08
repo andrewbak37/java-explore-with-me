@@ -74,7 +74,7 @@ public class EventMapper {
         return EventShortDto.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
-                .category(new CategoryDto(event.getId(),event.getCategory().getName()))
+                .category(new CategoryDto(event.getCategory().getId(),event.getCategory().getName()))
                 .confirmedRequests(confirmedRequests)
                 .participantLimit(event.getParticipantLimit())
                 .eventDate(event.getEventDate())
