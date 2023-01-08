@@ -4,13 +4,13 @@ services:
     ports:
       - "9090:9090"
     build: stats-service/
-    image: andrewbak37/ewm-stats-service
     container_name: ewm-stats-service
     depends_on:
       - stats-db
     environment:
+      - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/enw-stats
-      - SPRING_DATASOURCE_USER=postgres
+      - SPRING_DATASOURCE_USER=root
       - SPRING_DATASOURCE_PASSWORD=root
       - POSTGRES_DB=enw-stats
 
@@ -20,7 +20,7 @@ services:
     ports:
       - "6541:5432"
     environment:
-      - POSTGRES_USER=postgres
+      - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
       - POSTGRES_DB=enw-stats
     volumes:
@@ -30,16 +30,16 @@ services:
     ports:
       - "8080:8080"
     build: main-service/
-    image: andrewbak37/ewm-main-service
     container_name: ewm-main-service
     depends_on:
       - ewm-db
     environment:
+      - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/enw-main-service
-      - SPRING_DATASOURCE_USER=postgres
+      - SPRING_DATASOURCE_USER=root
       - SPRING_DATASOURCE_PASSWORD=root
       - POSTGRES_DB=enw_main_service
-      - EXPLORE_WITH_ME_STATS_URL=http://stats-server:9090
+      - EXPLORE_WITH_ME_STATS_URL=http://stats-service:9090
 
   ewm-db:
     image: postgres:14-alpine
@@ -47,7 +47,7 @@ services:
     ports:
       - "6542:5432"
     environment:
-      - POSTGRES_USER=postgres
+      - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
       - POSTGRES_DB=enw-main-service
     volumes:
