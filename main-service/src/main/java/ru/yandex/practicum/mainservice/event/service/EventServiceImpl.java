@@ -39,7 +39,7 @@ public class EventServiceImpl implements EventService {
     private static final int MIN_AVAILABLE_TIME_DIFFERENCE = 2;
 
     @Override
-    public List<EventShortDto> getEvents(EventSearchParams params, Integer from, Integer size) {
+    public List<EventShortDto> getEvents(EventSearchParams params, Integer from, Integer size, String requestUri, String userIp) {
         Pageable pageable = PageRequest.of(from / size, size);
         List<EventShortDto> eventShortDtos = eventRepository.findEventsWithParams(params, pageable, false)
                 .stream()
@@ -64,7 +64,7 @@ public class EventServiceImpl implements EventService {
                 case VIEWS: eventShortDtos.sort(Comparator.comparing(EventShortDto::getViews)); break;
             }
         }
-
+        eventClient.postStat(requestUri, userIp);
         return eventShortDtos;
     }
 

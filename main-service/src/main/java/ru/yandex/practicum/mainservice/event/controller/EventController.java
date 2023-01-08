@@ -30,10 +30,13 @@ public class EventController {
                                          @RequestParam(value = "onlyAvailable", defaultValue = "false") Boolean onlyAvailable,
                                          @RequestParam(value = "sort", required = false) String sort,
                                          @RequestParam(value = "from", defaultValue = "0") Integer from,
-                                         @RequestParam(value = "size", defaultValue = "10") Integer size) {
+                                         @RequestParam(value = "size", defaultValue = "10") Integer size,
+                                         HttpServletRequest request) {
         EventSearchParams params =
                 new EventSearchParams(text, null, null, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort);
-        return eventService.getEvents(params, from, size);
+        String requestUri = request.getRequestURI();
+        String userIp = request.getRemoteAddr();
+        return eventService.getEvents(params, from, size, requestUri, userIp);
     }
 
     @GetMapping("/{eventId}")
