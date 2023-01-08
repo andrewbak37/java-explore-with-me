@@ -8,6 +8,6 @@ import lombok.RequiredArgsConstructor;
 public class ViewStats {
 
     private final String app;
-    private final String iri;
+    private final String uri;
     private final Long hits;
 }
