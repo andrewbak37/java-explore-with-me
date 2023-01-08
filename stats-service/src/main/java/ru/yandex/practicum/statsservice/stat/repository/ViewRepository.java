@@ -37,7 +37,7 @@ public interface ViewRepository extends JpaRepository<View, Long>, JpaSpecificat
 
             if (params.getUris() != null) {
                 for (String uri : params.getUris()) {
-                    predicates.add(criteriaBuilder.in(root.get("uri")).value(uri));
+                    predicates.add(criteriaBuilder.like(root.get("uri"), uri + "%"));
                 }
             }
             if (params.getStart() != null) {
