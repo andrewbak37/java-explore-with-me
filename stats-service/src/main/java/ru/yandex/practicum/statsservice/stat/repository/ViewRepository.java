@@ -42,7 +42,7 @@ public interface ViewRepository extends JpaRepository<View, Long>, JpaSpecificat
             if (params.getUris() != null && !params.getUris().isEmpty()) {
                 List<Predicate> orPredicates = new ArrayList<>();
                 for (String uri : params.getUris()) {
-                    orPredicates.add(criteriaBuilder.like(root.get("uri"), uri + "%"));
+                    orPredicates.add(criteriaBuilder.equal(root.get("uri"), uri));
                 }
                 predicates.add(criteriaBuilder.or(orPredicates.toArray(Predicate[]::new)));
             }
