@@ -1,15 +1,13 @@
 package ru.yandex.practicum.mainservice.category.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
 @Builder
+@ToString
 @RequiredArgsConstructor
 public class CategoryDto {
 

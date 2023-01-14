@@ -8,9 +8,8 @@ import ru.yandex.practicum.statsservice.stat.model.StatsSearchParams;
 import ru.yandex.practicum.statsservice.stat.model.View;
 import ru.yandex.practicum.statsservice.stat.model.ViewStats;
 import ru.yandex.practicum.statsservice.stat.repository.ViewRepository;
-
 import java.util.List;
-import java.util.stream.Collectors;
+import static java.util.stream.Collectors.*;
 
 @Service
 @RequiredArgsConstructor
@@ -26,19 +25,19 @@ public class ViewServiceImpl implements ViewService {
 
     @Override
     public List<ViewStats> getStats(StatsSearchParams searchParams) {
-            List<View> stats = viewRepository.searchStatsByParams(searchParams);
-            return stats
-                    .stream()
-                    .map(view -> {
-                        Long countViews;
-                        if (searchParams.getUnique()) {
-                            countViews = viewRepository.countUniqueView(view.getUri());
-                        } else {
-                            countViews = viewRepository.countViewByUri(view.getUri());
-                        }
-                        return ViewMapper.mapToViewStats(view, countViews);
-                    })
-                    .collect(Collectors.toList());
+        List<Long> viewIds = viewRepository.searchStatsByParams(searchParams)
+                .stream()
+                .map(View::getId)
+                .collect(toList());
+        if (searchParams.getUnique()) {
+            return viewRepository.countUniqueView(viewIds).stream()
+                    .map(ViewMapper::mapToViewStats)
+                    .collect(toList());
+        } else {
+            return viewRepository.countViewByIds(viewIds).stream()
+                    .map(ViewMapper::mapToViewStats)
+                    .collect(toList());
         }
     }
+}
 

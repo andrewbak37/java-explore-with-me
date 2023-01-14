@@ -4,9 +4,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.statsservice.stat.model.StatsSearchParams;
 import ru.yandex.practicum.statsservice.stat.model.View;
+import ru.yandex.practicum.statsservice.stat.model.ViewStatsInterface;
 
 import javax.persistence.criteria.Predicate;
 import java.net.URLDecoder;
@@ -19,12 +21,14 @@ import java.util.List;
 @Repository
 public interface ViewRepository extends JpaRepository<View, Long>, JpaSpecificationExecutor<View> {
 
-    Long countViewByUri(String uri);
+    @Query(value = "select v.app AS app, v.uri AS uri, COUNT(*) as hits FROM VIEWS v WHERE view_id in (:ids)" +
+            "GROUP BY v.app, v.uri", nativeQuery = true)
+    List<ViewStatsInterface> countViewByIds(@Param("ids") List<Long> ids);
 
-    @Query(value = "SELECT DISTINCT COUNT(v) " +
-            "FROM View v " +
-            "WHERE v.uri = :uri")
-    Long countUniqueView(String uri);
+    @Query(value = "SELECT v.app AS app, v.uri AS uri, COUNT(*) as hits FROM " +
+            "(SELECT app, uri from VIEWS group by ip, uri WHERE view_id in (:ids)) AS v " +
+            "GROUP BY v.app, v.uri", nativeQuery = true)
+    List<ViewStatsInterface> countUniqueView(@Param("ids") List<Long> ids);
 
     default List<View> searchStatsByParams(StatsSearchParams params) {
         return findAll(getSpecificationByParams(params));
@@ -35,10 +39,12 @@ public interface ViewRepository extends JpaRepository<View, Long>, JpaSpecificat
             List<Predicate> predicates = new ArrayList<>();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-            if (params.getUris() != null) {
+            if (params.getUris() != null && !params.getUris().isEmpty()) {
+                List<Predicate> orPredicates = new ArrayList<>();
                 for (String uri : params.getUris()) {
-                    predicates.add(criteriaBuilder.like(root.get("uri"), uri + "%"));
+                    orPredicates.add(criteriaBuilder.like(root.get("uri"), uri + "%"));
                 }
+                predicates.add(criteriaBuilder.or(orPredicates.toArray(Predicate[]::new)));
             }
             if (params.getStart() != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(

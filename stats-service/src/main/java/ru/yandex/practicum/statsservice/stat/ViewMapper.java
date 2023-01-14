@@ -3,6 +3,7 @@ package ru.yandex.practicum.statsservice.stat;
 import ru.yandex.practicum.statsservice.stat.model.EndpointHit;
 import ru.yandex.practicum.statsservice.stat.model.View;
 import ru.yandex.practicum.statsservice.stat.model.ViewStats;
+import ru.yandex.practicum.statsservice.stat.model.ViewStatsInterface;
 
 public class ViewMapper {
 
@@ -15,11 +16,7 @@ public class ViewMapper {
                 .build();
     }
 
-    public static ViewStats mapToViewStats(View view, Long countView) {
-        return new ViewStats(
-                view.getApp(),
-                view.getUri(),
-                countView);
-
+    public static ViewStats mapToViewStats(ViewStatsInterface stats) {
+        return new ViewStats(stats.getApp(), stats.getUri(), stats.getHits());
     }
 }

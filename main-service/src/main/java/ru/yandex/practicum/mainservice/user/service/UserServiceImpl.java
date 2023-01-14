@@ -2,6 +2,7 @@ package ru.yandex.practicum.mainservice.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.mainservice.exception.ObjectNotFoundException;
 import ru.yandex.practicum.mainservice.user.dto.UserDto;
 import ru.yandex.practicum.mainservice.user.dto.UserMapper;
 import ru.yandex.practicum.mainservice.user.dto.UserRequest;
@@ -33,6 +34,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Long userId) {
-        userRepository.deleteById(userId);
+        User user = userRepository.findById(userId).orElseThrow(() -> new ObjectNotFoundException("User not found"));
+        userRepository.deleteById(user.getUserId());
     }
 }

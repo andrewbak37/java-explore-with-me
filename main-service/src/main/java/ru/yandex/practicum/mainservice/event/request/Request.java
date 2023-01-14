@@ -37,8 +37,4 @@ public class Request {
     private  RequestState status;
 
     private LocalDateTime created = LocalDateTime.now();
-
-
-
-
 }

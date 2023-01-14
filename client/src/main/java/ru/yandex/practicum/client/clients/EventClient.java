@@ -20,9 +20,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -65,6 +64,16 @@ public class EventClient {
                 Collections.emptyMap());
     }
 
+    public Map<String, Long> getEventViewStats(LocalDateTime publishedOn, List<Long> eventIds) {
+         return getStats(
+                 publishedOn.format(formatter),
+                 LocalDateTime.now().format(formatter),
+                 eventIds.stream().map(this::makeEventUri).collect(Collectors.toList()),
+                 false
+         ).getBody().stream()
+             .collect(Collectors.groupingBy(ViewStats::getUri, Collectors.counting()));
+    }
+
     public Long getEventViews(LocalDateTime publishedOn, Long eventId) {
         List<ViewStats> viewStats = Objects.requireNonNull(
                 getStats(
@@ -79,7 +88,7 @@ public class EventClient {
         return viewStats.get(0).getHits();
     }
 
-    private String makeEventUri(Long eventId) {
+    public String makeEventUri(Long eventId) {
         return API_PREFIX_EVENT + eventId;
     }
 

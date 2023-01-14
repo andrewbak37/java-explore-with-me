@@ -1,36 +1,44 @@
 package ru.yandex.practicum.mainservice.exception;
 
-import org.springframework.http.HttpStatus;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.sql.SQLException;
 
+import static org.springframework.http.HttpStatus.*;
+
 @RestControllerAdvice
 public class ErrorHandler {
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(NOT_FOUND)
     public ErrorResponse handleNotFoundHandler(ObjectNotFoundException e) {
-        return new ErrorResponse(e.getMessage());
+        return new ErrorResponse(NOT_FOUND.name(), NOT_FOUND.value(), e.getMessage());
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(BAD_REQUEST)
     public ErrorResponse handleValidationException(final ValidationException e) {
-        return new ErrorResponse(e.getMessage());
+        return new ErrorResponse(BAD_REQUEST.name(), BAD_REQUEST.value(), e.getMessage());
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseStatus(BAD_REQUEST)
+    public ErrorResponse handleUnrecognizedPropertyException(final UnrecognizedPropertyException e) {
+        return new ErrorResponse(BAD_REQUEST.name(), BAD_REQUEST.value(), e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(CONFLICT)
     public ErrorResponse handleDatabaseException(final SQLException e) {
-        return new ErrorResponse(e.getMessage());
+        return new ErrorResponse(CONFLICT.name(), CONFLICT.value(), e.getMessage());
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(FORBIDDEN)
     public ErrorResponse handleForbiddenException(final ForbiddenException e) {
-        return new ErrorResponse(e.getMessage());
+        return new ErrorResponse(FORBIDDEN.name(), FORBIDDEN.value(), e.getMessage());
     }
 }

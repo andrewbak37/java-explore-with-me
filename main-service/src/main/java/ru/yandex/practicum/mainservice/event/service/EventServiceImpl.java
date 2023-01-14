@@ -13,6 +13,7 @@ import ru.yandex.practicum.mainservice.event.repository.EventRepository;
 import ru.yandex.practicum.mainservice.event.repository.LocationRepository;
 import ru.yandex.practicum.mainservice.event.repository.RequestRepository;
 import ru.yandex.practicum.mainservice.event.request.Request;
+import ru.yandex.practicum.mainservice.event.request.RequestCountConfirmedView;
 import ru.yandex.practicum.mainservice.event.request.RequestState;
 import ru.yandex.practicum.mainservice.exception.ForbiddenException;
 import ru.yandex.practicum.mainservice.exception.ObjectNotFoundException;
@@ -23,6 +24,7 @@ import ru.yandex.practicum.mainservice.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -206,18 +208,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public ParticipationRequestDto confirmEventRequest(Long userId, Long eventId, Long reqId) {
-        userRepository.findById(userId).orElseThrow(()
-                -> new ObjectNotFoundException("User not found"));
-        Event foundEvent = eventRepository.findById(eventId).orElseThrow(()
-                -> new ObjectNotFoundException("Event not found"));
-        Request foundRequest = requestRepository.findById(reqId).orElseThrow(()
-                -> new ObjectNotFoundException("Request not found"));
-        if (!foundEvent.getInitiator().getUserId().equals(userId)) {
-            throw new ForbiddenException("Access denied");
-        }
-        if (!foundRequest.getEvent().getId().equals(eventId)) {
-            throw new ForbiddenException("Access denied");
-        }
+        Request foundRequest = requestRepository.findRequestByIdAndEvent_IdAndEvent_Initiator_UserId(reqId, eventId, userId)
+                .orElseThrow(() -> new ObjectNotFoundException("Request not found"));
         if (!foundRequest.getStatus().equals(RequestState.PENDING)) {
             throw new ValidationException("Validation failed");
         }
@@ -228,18 +220,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public ParticipationRequestDto rejectEventRequest(Long userId, Long eventId, Long reqId) {
-        userRepository.findById(userId).orElseThrow(()
-                -> new ObjectNotFoundException("User not found"));
-        Event foundEvent = eventRepository.findById(eventId).orElseThrow(()
-                -> new ObjectNotFoundException("Event not found"));
-        Request foundRequest = requestRepository.findById(reqId).orElseThrow(()
-                -> new ObjectNotFoundException("Request not found"));
-        if (!foundEvent.getInitiator().getUserId().equals(userId)) {
-            throw new ForbiddenException("Access denied");
-        }
-        if (!foundRequest.getEvent().getId().equals(eventId)) {
-            throw new ForbiddenException("Access denied");
-        }
+        Request foundRequest = requestRepository.findRequestByIdAndEvent_IdAndEvent_Initiator_UserId(reqId, eventId, userId)
+                .orElseThrow(() -> new ObjectNotFoundException("Request not found"));
         if (!foundRequest.getStatus().equals(RequestState.PENDING)) {
             throw new ValidationException("Validation failed");
         }
@@ -251,13 +233,22 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventFullDto> searchEvents(EventSearchParams params, Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
-        return eventRepository.findEventsWithParams(params, pageable, true)
-                .stream()
-                .map(event -> {
-                    Long confirmedRequests = requestRepository.countConfirmedRequests(event.getId());
-                    Long views = eventClient.getEventViews(event.getCreatedOn(), event.getId());
-                    return EventMapper.mapToFullDto(event, confirmedRequests, views);
-                })
+        List<Event> events = eventRepository.findEventsWithParams(params, pageable, true).getContent();
+        List<Long> eventIds = events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
+        Map<Long, Long> eventIdToViewCount = requestRepository.countConfirmedRequests(eventIds).stream()
+                .collect(Collectors.toMap(RequestCountConfirmedView::getEventId, RequestCountConfirmedView::getRequestCount));
+        LocalDateTime minCreatedOnDate = events.stream()
+                .min(Comparator.comparing(Event::getCreatedOn)).orElseThrow().getCreatedOn();
+        Map<String, Long> uriToViewStats = eventClient.getEventViewStats(minCreatedOnDate, eventIds);
+        return events.stream()
+                .map(e -> EventMapper.mapToFullDto(
+                        e,
+                        eventIdToViewCount.get(e.getId()),
+                        uriToViewStats.get(eventClient.makeEventUri(e.getId()))
+                        )
+                )
                 .collect(Collectors.toList());
     }
 
