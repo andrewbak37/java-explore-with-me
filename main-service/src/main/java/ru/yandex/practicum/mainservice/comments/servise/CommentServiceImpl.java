@@ -36,7 +36,7 @@ public class CommentServiceImpl implements CommentService {
     public List<CommentShortDto> getEventComments(Long eventId, Integer from, Integer size) {
         eventRepository.findById(eventId).orElseThrow(()
                 -> new ObjectNotFoundException("Event not found"));
-        Pageable pageable = PageRequest.of(from / size, size);
+        Pageable pageable = PageRequest.of(from * size, size);
         return commentRepository.findCommentsByEventId(eventId, pageable)
                 .stream()
                 .map(CommentMapper::mapToCommentShortDto)
@@ -47,7 +47,7 @@ public class CommentServiceImpl implements CommentService {
     public List<CommentDto> getUserComments(Long userId, Integer from, Integer size) {
         userRepository.findById(userId).orElseThrow(()
                 -> new ObjectNotFoundException("User not found"));
-        Pageable pageable = PageRequest.of(from / size, size);
+        Pageable pageable = PageRequest.of(from * size, size);
         return commentRepository.findCommentsByOwner_UserId(userId, pageable)
                 .stream()
                 .map(CommentMapper::mapToCommentDto)
@@ -87,7 +87,7 @@ public class CommentServiceImpl implements CommentService {
     public void deleteComment(Long commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(()
                 -> new ObjectNotFoundException("Comment not found"));
-        commentRepository.save(comment);
+        commentRepository.deleteById(commentId);
     }
 
     private void fillComment(Comment comment, NewCommentDto newCommentDto) {

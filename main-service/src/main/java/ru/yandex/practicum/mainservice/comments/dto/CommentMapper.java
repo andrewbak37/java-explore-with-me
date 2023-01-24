@@ -9,12 +9,11 @@ import ru.yandex.practicum.mainservice.user.model.User;
 public class CommentMapper {
 
     public static Comment mapToComment(NewCommentDto newCommentDto, User user, Event event) {
-        Comment comment = new Comment();
-        comment.setOwner(user);
-        comment.setEvent(event);
-        comment.setDescription(newCommentDto.getText());
-
-        return comment;
+        return Comment.builder()
+                .owner(user)
+                .event(event)
+                .description(newCommentDto.getText())
+                .build();
     }
 
     public static CommentShortDto mapToCommentShortDto(Comment comment) {

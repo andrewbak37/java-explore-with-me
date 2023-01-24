@@ -10,11 +10,6 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-//    @Query(value = "SELECT c " +
-//            "FROM Comment c " +
-//            "WHERE c.event.id = :eventId ")
-//    List<Comment> findCommentsByEventId(Long eventId, Pageable pageable);
-
     List<Comment> findCommentsByEventId(Long eventId, Pageable pageable);
 
     List<Comment> findCommentsByOwner_UserId(Long userId, Pageable pageable);
